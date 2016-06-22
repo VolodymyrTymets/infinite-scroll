@@ -58,7 +58,9 @@ Blaze.TemplateInstance.prototype.infiniteScroll = function infiniteScroll(option
     // Publication to subscribe to, if null will use {collection}Infinite
     publication: null,
     // Container will use to scroll
-    container: window
+    container: window,
+    // On item loaded
+    onLoaded: function () {}
   };
   options = _.extend({}, _defaults, options);
 
@@ -151,10 +153,15 @@ Blaze.TemplateInstance.prototype.infiniteScroll = function infiniteScroll(option
     tpl.infiniteSub = subscriber.subscribe(options.publication, lmt, query, sort, null);
   });
 
+  let subNotReady = false; // need to call trigger only for sub depend
   // Check to see if we need to load more
   tpl.autorun(function(){
-    if(tpl.infiniteSub.ready()){
+    if(tpl.infiniteSub.ready() && subNotReady) {
       Tracker.afterFlush(triggerLoadMore);
+      options.onLoaded();
+      subNotReady = false;
+    } else {
+      subNotReady = true;
     }
   });
 

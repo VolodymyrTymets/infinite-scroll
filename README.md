@@ -21,6 +21,7 @@ Template.comments.created = function() {
                                         // Defaults to {collection}Infinite
     container: '#selector'              // (optional) Selector to scroll div.
     loadingTemplateName:'loading'       // (optional) Name Of loading template
+    onLoad: function () {}              // call when collection item is loaded
   });
 };
 ```
