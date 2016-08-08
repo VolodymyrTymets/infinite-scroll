@@ -1,6 +1,6 @@
 Package.describe({
   name: 'nigtmere:infinite-scroll',
-  version: '0.9.4',
+  version: '0.9.5',
   // Brief, one-line summary of the package.
   summary: 'Template level infinite scrolling.',
   // URL to the Git repository containing the source code for this package.
