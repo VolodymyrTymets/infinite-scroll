@@ -193,7 +193,7 @@ Blaze.TemplateInstance.prototype.infiniteScroll = function infiniteScroll(option
  * Attempt to trigger infinite loading when resize and scroll browser
  * events are fired.
  */
-Template.infiniteScroll.onCreated(function () {
+Template.infiniteScroll.onRendered(function () {
   $(CONTAINER).on('resize scroll', _.throttle(triggerLoadMore, 500));
 });
 
