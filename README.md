@@ -1,5 +1,5 @@
 # Meteor Infinite Scroll
-**Enables infinite scrolling at the template level**. This package allows you to increment the `limit` parameter of a MongoDB query as the user scrolls down the page. This allows Meteor to use the Oplog Observe Driver for your query, as well as leaving you in control of your publications.
+**Enables infinite scrolling at the template level**. You can enable `limit` increasing by using `onLoaded` function which invokes every scroll down container event occurs.
 
 ## Usage:
 
@@ -9,47 +9,15 @@ Call `this.infiniteScroll` in the `created` or `rendered` functions for your tem
 Template.comments.created = function() {
   // Enable infinite scrolling on this template
   this.infiniteScroll({
-    perPage: 20,                        // How many results to load "per page"
-    query: {                            // The query to use as the selector in our collection.find() query
-        post: 71
-    },
-    subManager: new SubsManager(),      // (optional, experimental) A meteorhacks:subs-manager to set the subscription on
-                                        // Useful when you want the data to persist after this template
-                                        // is destroyed.
-    collection: 'Comments',             // The name of the collection to use for counting results
-    publication: 'CommentsInfinite'     // (optional) The name of the publication to subscribe.
-                                        // Defaults to {collection}Infinite
-    container: '#selector'              // (optional) Selector to scroll div.
-    loadingTemplateName:'loading'       // (optional) Name Of loading template
-    onLoaded: function () {}            // call when collection item is loaded
+    isDataReady: () => ReactiveVar.get(); // function which calls reactive variable.
+                                          // Also it could be like () => subscription.ready();
+                                          // but in this case, subscription should be stored in ReactiveVar first.
+    container: '#selector'                // (optional) Selector to scroll div.
+    loadingTemplateName:'loading'         // (optional) Name Of loading template
+    onLoaded: function () {}              // called on scrolled down container
   });
 };
 ```
-
-Create a publication on the server:
-
-```js
-if(Meteor.isServer){
-    Meteor.publish('CommentsInfinite', function(limit, query) {
-        // Don't use the query object directly in your cursor for security!
-        var selector = {};
-        check(limit, Number);
-        check(query.name, String);
-        // Assign safe values to a new object after they have been validated
-        selector.name = query.name;
-
-      	return Comments.find(selector, {
-          limit: limit,
-          // Using sort here is necessary to continue to use the Oplog Observe Driver!
-          // https://github.com/meteor/meteor/wiki/Oplog-Observe-Driver
-          sort: {
-            created: 1
-          }
-        });
-    });
-}
-```
-
 Render your data as usual. Render the `{{> infiniteScroll }}` template after your data is rendered:
 
 ```handlebars
@@ -60,9 +28,10 @@ Render your data as usual. Render the `{{> infiniteScroll }}` template after you
     {{> infiniteScroll }}
 </template>
 ```
-> Infinite Scroll will increase the `limit` of the subscription as the `{{> infiniteScroll }}` template approaches the viewport.
+> Infinite Scroll will invoke `onLoaded` callback as the `{{> infiniteScroll }}` template approaches the viewport.
 
-Provide data to the template as you usually would. Use `Template.instance().infiniteSub.ready()` like you would use `subscriptionsReady()` on the template instance.
+Provide data to the template as you usually would.
+
 ```js
 Template.comments.helpers({
   comments: function() {
@@ -74,11 +43,6 @@ Template.comments.helpers({
   }
 });
 ```
-
-### Only `limit`
-
-Using `skip` will cause Meteor to use the Polling Observe Driver (see [Oplog Observe Driver in the Meteor Wiki](https://github.com/meteor/meteor/wiki/Oplog-Observe-Driver)). For a full pagination solution that uses skip, check out [alethes:pages](https://github.com/alethes/meteor-pages).
-
 ## Styling the loader
 The `{{> infiniteScroll }}` template renders:
 ```html
@@ -91,9 +55,9 @@ The `{{> infiniteScroll }}` template renders:
 </template>
 ```
 
-When the subscription is loading more data, `.infinite-load-more` will receive the class `loading`. It will be removed when the subscription is marked as ready.
+When data is loading, `.infinite-load-more` will receive the class `loading`. It will be removed when the data is received.
 
-`.infinite-label` is only visible when the subscription is loading.
+`.infinite-label` is only visible when the data is loading.
 
 # Todo:
 - Customizable threshold for loading more results
