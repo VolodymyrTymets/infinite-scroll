@@ -12,7 +12,7 @@ Package.describe({
 
 Package.onUse(function(api) {
   api.versionsFrom('1.2');
-  api.use(['jquery', 'less', 'templating'], 'client');
+  api.use(['jquery', 'less', 'templating', 'jwo1f:parent-template@0.0.3'], 'client');
   api.use(['check', 'ecmascript'], ['client', 'server']);
   api.export('InfiniteScroll');
   api.addFiles('infiniteScroll.html', 'client');
